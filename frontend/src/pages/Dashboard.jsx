@@ -18,17 +18,43 @@ function Dashboard() {
   }, [])
 
   const fetchData = async () => {
+    // Check cache first — if data is less than 2 minutes old, use it instantly
     try {
-      await api.get('/market/fetch')
+      const cached = localStorage.getItem('mp_dashboard_cache')
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached)
+        const ageMinutes = (Date.now() - timestamp) / 1000 / 60
+        if (ageMinutes < 2) {
+          setCrypto(data.crypto)
+          setStocks(data.stocks)
+          setInsight(data.insight)
+          setLoading(false)
+          setInsightLoading(false)
+          return
+        }
+      }
+    } catch {}
+
+    // Fresh fetch from backend (no /market/fetch — scheduler handles that)
+    try {
       const cryptoRes = await api.get('/market/crypto')
       const stockRes = await api.get('/market/stocks')
-      setCrypto(cryptoRes.data.crypto)
-      setStocks(stockRes.data.stocks)
+      const cryptoData = cryptoRes.data.crypto
+      const stockData = stockRes.data.stocks
+      setCrypto(cryptoData)
+      setStocks(stockData)
 
       const insightRes = await api.post('/agent/ask', {
         question: 'Give me a 2-3 sentence market summary for today based on current prices. Be concise and friendly.'
       })
-      setInsight(insightRes.data.answer)
+      const insightText = insightRes.data.answer
+      setInsight(insightText)
+
+      // Save to cache
+      localStorage.setItem('mp_dashboard_cache', JSON.stringify({
+        data: { crypto: cryptoData, stocks: stockData, insight: insightText },
+        timestamp: Date.now()
+      }))
     } catch (err) {
       console.error(err)
     }
@@ -188,7 +214,7 @@ function Dashboard() {
         <span className="nav-logo" onClick={() => navigate('/')}>MarketPulse</span>
         <div className="nav-links">
           <span className="nav-link active">Dashboard</span>
-          <span className="nav-link" onClick={() => navigate('/chat')}>AI Chat</span>
+          <span className="nav-link" onClick={() => navigate('/chat')}>AI Analyst</span>
           <span className="nav-link" onClick={() => navigate('/about')}>About</span>
           <button className="logout-btn" onClick={() => { localStorage.removeItem('token'); navigate('/login') }}>Logout</button>
         </div>

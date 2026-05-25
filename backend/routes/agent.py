@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from services.agent_service import ask_agent
 
@@ -9,5 +9,10 @@ class AgentQuery(BaseModel):
 
 @router.post("/ask")
 def ask(query: AgentQuery):
-    response = ask_agent(query.question)
-    return {"answer": response}
+    if not query.question or not query.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+    try:
+        response = ask_agent(query.question.strip())
+        return {"answer": response, "status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Agent error. Please try again.")
