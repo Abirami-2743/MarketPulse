@@ -537,7 +537,7 @@ export default function Dashboard() {
             <div className="page-header">
               <div className="page-header-left">
                 <div className="page-eyebrow">Market Overview</div>
-                <h1 className="page-title">Good morning,<br /><em>here's your briefing.</em></h1>
+                <h1 className="page-title">Pulse Check!<br /><em>here's your briefing.</em></h1>
                 <p className="page-sub">{dateStr} · Real-time prices · AI-powered analysis</p>
               </div>
               <div className="header-stats">
