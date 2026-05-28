@@ -10,8 +10,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:5174",
-        "https://market-pulse-jade-iota.vercel.app",
-        "https://*.vercel.app",
+        "https://market-pulse-jade-iota.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
