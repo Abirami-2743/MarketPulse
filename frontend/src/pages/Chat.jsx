@@ -17,14 +17,13 @@ function FormattedMessage({ text }) {
   while (i < lines.length) {
     const line = lines[i]
 
-    // Detect markdown table — separator can be | --- | or |---|
     const isTableHeader = line.trim().startsWith('|')
     const nextLine = lines[i + 1]?.trim() || ''
     const isSeparator = nextLine.startsWith('|') && nextLine.replace(/[\s|]/g, '').replace(/-/g, '') === ''
 
     if (isTableHeader && isSeparator) {
       const headers = line.split('|').map(h => h.trim()).filter(Boolean)
-      i += 2 // skip header + separator
+      i += 2
       const rows = []
       while (i < lines.length && lines[i].trim().startsWith('|')) {
         const cells = lines[i].split('|').map(c => c.trim()).filter(Boolean)
@@ -32,16 +31,17 @@ function FormattedMessage({ text }) {
         i++
       }
       elements.push(
-        <div key={`table-${i}`} style={{ overflowX: 'auto', margin: '10px 0' }}>
+        <div key={`table-${i}`} style={{ overflowX: 'auto', margin: '12px 0' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr>
                 {headers.map((h, hi) => (
                   <th key={hi} style={{
                     padding: '9px 12px', textAlign: 'left',
-                    borderBottom: '1px solid rgba(245,217,126,0.3)',
-                    color: '#F5D97E', fontWeight: 600,
-                    fontSize: '11px', letterSpacing: '0.07em', textTransform: 'uppercase'
+                    borderBottom: '1px solid #E8E0CF',
+                    color: '#9A7B3C', fontWeight: 600,
+                    fontFamily: "'Geist Mono', monospace",
+                    fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase'
                   }}>{h}</th>
                 ))}
               </tr>
@@ -49,8 +49,8 @@ function FormattedMessage({ text }) {
             <tbody>
               {rows.map((row, ri) => (
                 <tr key={ri} style={{
-                  borderBottom: '0.5px solid rgba(139,92,246,0.1)',
-                  background: ri % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                  borderBottom: '1px solid #F0EBE1',
+                  background: ri % 2 === 0 ? 'transparent' : 'rgba(200,168,75,0.03)'
                 }}>
                   {row.map((cell, ci) => {
                     const isUp      = cell.includes('+') && cell.includes('%')
@@ -60,13 +60,14 @@ function FormattedMessage({ text }) {
                     const isLow     = cell.toUpperCase() === 'LOW'
                     const isBullish = cell === 'Bullish'
                     const isBearish = cell === 'Bearish'
-                    let color = 'rgba(240,234,255,0.8)'
-                    if (isUp || isBullish || isLow)  color = '#4ADE80'
-                    if (isDown || isBearish || isHigh) color = '#F87171'
-                    if (isMed) color = '#FBBF24'
+                    let color = '#4A4138'
+                    if (isUp || isBullish || isLow)  color = '#2D7D46'
+                    if (isDown || isBearish || isHigh) color = '#C0392B'
+                    if (isMed) color = '#9A7B3C'
                     return (
                       <td key={ci} style={{
                         padding: '9px 12px', color,
+                        fontFamily: "'Geist Mono', monospace", fontSize: '12px',
                         fontWeight: (isHigh || isMed || isLow || isBullish || isBearish) ? 600 : 400
                       }}>{cell}</td>
                     )
@@ -80,23 +81,20 @@ function FormattedMessage({ text }) {
       continue
     }
 
-    // Empty line
     if (line.trim() === '') {
       elements.push(<div key={`br-${i}`} style={{ height: '6px' }} />)
       i++; continue
     }
 
-    // Bold **text**
     const boldParts = line.split(/\*\*(.*?)\*\*/)
     const rendered = boldParts.length > 1
       ? boldParts.map((part, j) =>
           j % 2 === 1
-            ? <span key={j} style={{ color: '#F5D97E', fontWeight: 600 }}>{part}</span>
+            ? <span key={j} style={{ color: '#9A7B3C', fontWeight: 600 }}>{part}</span>
             : part
         )
       : line
 
-    // Bullet lines
     if (line.startsWith('•') || line.startsWith('-')) {
       const low = line.toLowerCase()
       const isRisk = low.includes('risk')
@@ -105,16 +103,16 @@ function FormattedMessage({ text }) {
       const isLow  = low.includes('low')
       const isBull = low.includes('bullish')
       const isBear = low.includes('bearish')
-      let accent = 'rgba(240,234,255,0.7)'
-      if (isRisk && isHigh) accent = '#F87171'
-      else if (isRisk && isMed)  accent = '#FBBF24'
-      else if (isRisk && isLow)  accent = '#4ADE80'
-      else if (isBull) accent = '#4ADE80'
-      else if (isBear) accent = '#F87171'
+      let accent = '#7A6E62'
+      if (isRisk && isHigh)   accent = '#C0392B'
+      else if (isRisk && isMed) accent = '#9A7B3C'
+      else if (isRisk && isLow) accent = '#2D7D46'
+      else if (isBull) accent = '#2D7D46'
+      else if (isBear) accent = '#C0392B'
       elements.push(
         <div key={`b-${i}`} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-          <span style={{ color: accent, flexShrink: 0, marginTop: '1px' }}>•</span>
-          <span style={{ color: accent !== 'rgba(240,234,255,0.7)' ? accent : 'rgba(240,234,255,0.85)', lineHeight: 1.6 }}>
+          <span style={{ color: '#C8A84B', flexShrink: 0, marginTop: '2px', fontWeight: 700 }}>·</span>
+          <span style={{ color: accent, lineHeight: 1.7 }}>
             {boldParts.length > 1 ? rendered : line.slice(1).trim()}
           </span>
         </div>
@@ -123,7 +121,7 @@ function FormattedMessage({ text }) {
     }
 
     elements.push(
-      <div key={`l-${i}`} style={{ lineHeight: 1.7, color: 'rgba(240,234,255,0.85)' }}>
+      <div key={`l-${i}`} style={{ lineHeight: 1.75, color: '#4A4138' }}>
         {boldParts.length > 1 ? rendered : line}
       </div>
     )
@@ -139,7 +137,7 @@ function ThinkingDots() {
       {[0, 1, 2].map(i => (
         <div key={i} style={{
           width: '7px', height: '7px', borderRadius: '50%',
-          background: 'rgba(245,217,126,0.6)',
+          background: '#C8A84B',
           animation: 'dotPulse 1.2s ease-in-out infinite',
           animationDelay: `${i * 0.2}s`
         }} />
@@ -150,17 +148,35 @@ function ThinkingDots() {
 
 const INITIAL_MESSAGE = {
   role: 'ai',
-  text: 'Hi! I am **MarketPulse AI** — your intelligent market analyst.\n\nAsk me about any stock or crypto and I will give you a full risk analysis with trend insights.',
+  text: 'Good morning. I am **MarketPulse AI** — your intelligent market analyst.\n\nAsk me about any stock or crypto and I will give you a full risk analysis with trend insights.',
   error: false
+}
+
+// Derive a stable, per-user storage key from the token.
+// We use a short hash of the token so different accounts never share the same key.
+function getChatStorageKey() {
+  const token = localStorage.getItem('token') || 'guest'
+  // Simple djb2-style hash — good enough to differentiate accounts
+  let hash = 5381
+  for (let idx = 0; idx < token.length; idx++) {
+    hash = ((hash << 5) + hash) ^ token.charCodeAt(idx)
+    hash = hash >>> 0 // keep unsigned 32-bit
+  }
+  return `mp_chat_messages_${hash}`
 }
 
 function Chat() {
   const navigate = useNavigate()
   const bottomRef = useRef(null)
+  const [scrolled, setScrolled] = useState(false)
+  const [now, setNow] = useState(new Date())
+
+  // Compute the key once per mount (token won't change while the component is alive)
+  const storageKey = useRef(getChatStorageKey()).current
 
   const [messages, setMessages] = useState(() => {
     try {
-      const saved = localStorage.getItem('mp_chat_messages')
+      const saved = localStorage.getItem(storageKey)
       return saved ? JSON.parse(saved) : [INITIAL_MESSAGE]
     } catch {
       return [INITIAL_MESSAGE]
@@ -171,8 +187,16 @@ function Chat() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    try { localStorage.setItem('mp_chat_messages', JSON.stringify(messages)) } catch {}
-  }, [messages])
+    if (!localStorage.getItem('token')) navigate('/login')
+    const t = setInterval(() => setNow(new Date()), 1000)
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    window.addEventListener('scroll', onScroll)
+    return () => { clearInterval(t); window.removeEventListener('scroll', onScroll) }
+  }, [])
+
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(messages)) } catch {}
+  }, [messages, storageKey])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -204,65 +228,281 @@ function Chat() {
   }
 
   const clearChat = () => {
-    localStorage.removeItem('mp_chat_messages')
+    localStorage.removeItem(storageKey)
     setMessages([INITIAL_MESSAGE])
   }
 
   const showSuggestions = messages.length <= 1
 
   return (
-    <div style={{ height: '100vh', background: '#0D0818', color: '#F0EAFF', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{
+      height: '100vh',
+      background: '#F7F4EE',
+      color: '#1A1612',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: "'Outfit', sans-serif"
+    }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=Inter:wght@400;500;600&display=swap');
-        @keyframes dotPulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        .navbar { display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:#13102A; border-bottom:0.5px solid rgba(139,92,246,0.2); flex-shrink:0; }
-        .nav-logo { font-family:'Cormorant Garamond',serif; font-size:26px; font-style:italic; color:#F5D97E; cursor:pointer; }
-        .nav-links { display:flex; gap:28px; align-items:center; }
-        .nav-link { font-size:13px; color:rgba(240,234,255,0.6); cursor:pointer; transition:color 0.2s; }
-        .nav-link:hover { color:#F0EAFF; }
-        .nav-link.active { color:#F5D97E; border-bottom:1px solid #F5D97E; padding-bottom:2px; }
-        .logout-btn { padding:7px 18px; background:transparent; color:rgba(240,234,255,0.6); border:0.5px solid rgba(240,234,255,0.2); border-radius:50px; font-size:12px; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; }
-        .logout-btn:hover { border-color:#F5D97E; color:#F5D97E; }
-        .chat-area { flex:1; overflow-y:auto; padding:28px 40px; display:flex; flex-direction:column; gap:14px; }
-        .chat-area::-webkit-scrollbar { width:4px; }
-        .chat-area::-webkit-scrollbar-track { background:transparent; }
-        .chat-area::-webkit-scrollbar-thumb { background:rgba(139,92,246,0.3); border-radius:4px; }
-        .msg-user { display:flex; justify-content:flex-end; animation:fadeUp 0.25s ease; }
-        .msg-ai { display:flex; justify-content:flex-start; gap:10px; animation:fadeUp 0.25s ease; }
-        .ai-avatar { width:30px; height:30px; border-radius:50%; background:rgba(245,217,126,0.1); border:0.5px solid rgba(245,217,126,0.3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px; }
-        .bubble { max-width:68%; padding:14px 18px; border-radius:16px; font-size:14px; line-height:1.7; }
-        .bubble-user { background:#F5D97E; color:#0D0818; font-weight:500; border-radius:16px 16px 4px 16px; }
-        .bubble-ai { background:#13102A; color:#F0EAFF; border:0.5px solid rgba(139,92,246,0.25); border-radius:16px 16px 16px 4px; }
-        .bubble-error { background:rgba(248,113,113,0.06); border:0.5px solid rgba(248,113,113,0.3); border-radius:16px 16px 16px 4px; }
-        .retry-btn { margin-top:10px; padding:6px 14px; background:transparent; color:#F87171; border:0.5px solid rgba(248,113,113,0.35); border-radius:50px; font-size:12px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; display:block; }
-        .retry-btn:hover { background:rgba(248,113,113,0.08); }
-        .thinking-bubble { background:#13102A; border:0.5px solid rgba(139,92,246,0.25); border-radius:16px 16px 16px 4px; padding:14px 18px; max-width:100px; animation:fadeUp 0.25s ease; }
-        .suggestions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; animation:fadeUp 0.4s ease; }
-        .suggestion-chip { padding:7px 14px; background:rgba(245,217,126,0.05); border:0.5px solid rgba(245,217,126,0.2); border-radius:50px; font-size:12px; color:rgba(240,234,255,0.65); cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; }
-        .suggestion-chip:hover { background:rgba(245,217,126,0.1); color:#F5D97E; border-color:rgba(245,217,126,0.4); }
-        .input-area { padding:18px 40px; background:#13102A; border-top:0.5px solid rgba(139,92,246,0.2); display:flex; gap:10px; flex-shrink:0; align-items:center; }
-        .chat-input { flex:1; padding:14px 20px; background:#0D0818; border:0.5px solid rgba(139,92,246,0.25); border-radius:50px; color:#F0EAFF; font-size:14px; outline:none; font-family:'Inter',sans-serif; transition:border-color 0.2s; }
-        .chat-input:focus { border-color:rgba(245,217,126,0.45); }
-        .chat-input::placeholder { color:rgba(240,234,255,0.22); }
-        .chat-input:disabled { opacity:0.5; }
-        .send-btn { padding:14px 26px; background:#F5D97E; color:#0D0818; border:none; border-radius:50px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; white-space:nowrap; }
-        .send-btn:hover:not(:disabled) { opacity:0.88; transform:translateY(-1px); }
-        .send-btn:disabled { opacity:0.4; cursor:not-allowed; }
-        .clear-btn { padding:14px 16px; background:transparent; border:0.5px solid rgba(240,234,255,0.12); border-radius:50px; color:rgba(240,234,255,0.35); font-size:12px; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; white-space:nowrap; }
-        .clear-btn:hover { border-color:rgba(248,113,113,0.3); color:#F87171; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600&family=Geist+Mono:wght@400;700&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #C8BBA8; border-radius: 3px; }
+
+        @keyframes dotPulse { 0%,80%,100%{opacity:0.25;transform:scale(0.75)} 40%{opacity:1;transform:scale(1)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
+
+        .nav {
+          position: sticky; top: 0; z-index: 100;
+          height: 62px;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0 48px;
+          background: rgba(247,244,238,0.92);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(0,0,0,0.07);
+          transition: box-shadow 0.3s;
+          flex-shrink: 0;
+        }
+        .nav.elevated { box-shadow: 0 2px 24px rgba(0,0,0,0.07); }
+
+        .nav-brand {
+          display: flex; align-items: baseline; gap: 10px;
+          cursor: pointer; user-select: none;
+        }
+        .nav-brand-name {
+          font-family: 'Playfair Display', serif;
+          font-size: 22px; font-weight: 700;
+          color: #1A1612; letter-spacing: -0.03em;
+        }
+        .nav-brand-tag {
+          font-family: 'Geist Mono', monospace;
+          font-size: 9px; color: #B09A7A;
+          letter-spacing: 0.15em; text-transform: uppercase;
+          border: 1px solid #DDD5C5;
+          padding: 2px 7px; border-radius: 4px;
+        }
+
+        .nav-links { display: flex; gap: 2px; }
+        .nav-link {
+          padding: 7px 16px; font-size: 13px; font-weight: 500;
+          color: #7A6E62; border-radius: 8px;
+          cursor: pointer; transition: all 0.18s;
+          letter-spacing: 0.01em;
+        }
+        .nav-link:hover { background: rgba(0,0,0,0.04); color: #1A1612; }
+        .nav-link.active { background: #1A1612; color: #F7F4EE; }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-clock {
+          font-family: 'Geist Mono', monospace;
+          font-size: 11px; color: #B09A7A;
+          letter-spacing: 0.06em; text-align: right; line-height: 1.5;
+        }
+        .nav-clock strong { color: #5A4F44; display: block; font-size: 13px; }
+
+        .live-badge {
+          display: flex; align-items: center; gap: 6px;
+          background: #EDFAF2; border: 1px solid #A8DEB8;
+          border-radius: 50px; padding: 4px 10px;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px; color: #2D7D46;
+          letter-spacing: 0.08em; text-transform: uppercase;
+        }
+        .live-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #2D7D46;
+          animation: livepulse 2s ease infinite;
+        }
+
+        .btn-logout {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px; font-weight: 600;
+          letter-spacing: 0.06em; text-transform: uppercase;
+          padding: 8px 18px; border-radius: 8px;
+          border: 1px solid #DDD5C5;
+          background: transparent; color: #7A6E62;
+          cursor: pointer; transition: all 0.2s;
+        }
+        .btn-logout:hover { border-color: #1A1612; color: #1A1612; background: rgba(0,0,0,0.03); }
+
+        /* ── Chat area ── */
+        .chat-area {
+          flex: 1; overflow-y: auto;
+          padding: 32px 48px;
+          display: flex; flex-direction: column; gap: 16px;
+        }
+
+        .msg-user { display: flex; justify-content: flex-end; animation: fadeUp 0.25s ease; }
+        .msg-ai   { display: flex; justify-content: flex-start; gap: 12px; animation: fadeUp 0.25s ease; }
+
+        .ai-avatar {
+          width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; margin-top: 2px;
+          background: rgba(200,168,75,0.1);
+          border: 1px solid rgba(200,168,75,0.25);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 15px;
+        }
+
+        .bubble {
+          max-width: 68%; padding: 14px 18px; border-radius: 16px;
+          font-size: 14px; line-height: 1.7;
+        }
+        .bubble-user {
+          background: #1A1612; color: #F7F4EE;
+          font-weight: 400; letter-spacing: 0.01em;
+          border-radius: 16px 16px 4px 16px;
+          font-family: 'Outfit', sans-serif;
+        }
+        .bubble-ai {
+          background: #FFFDF8; color: #4A4138;
+          border: 1px solid #E8E0CF;
+          border-radius: 16px 16px 16px 4px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .bubble-error {
+          background: #FDF0EE; color: #C0392B;
+          border: 1px solid #DFB8B4;
+          border-radius: 16px 16px 16px 4px;
+        }
+
+        .thinking-bubble {
+          background: #FFFDF8; border: 1px solid #E8E0CF;
+          border-radius: 16px 16px 16px 4px;
+          padding: 14px 18px; max-width: 90px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+          animation: fadeUp 0.25s ease;
+        }
+
+        .retry-btn {
+          margin-top: 10px; padding: 6px 14px;
+          background: transparent; color: #C0392B;
+          border: 1px solid #DFB8B4; border-radius: 8px;
+          font-size: 12px; font-weight: 500;
+          cursor: pointer; transition: all 0.2s;
+          font-family: 'Outfit', sans-serif; display: block;
+          letter-spacing: 0.04em;
+        }
+        .retry-btn:hover { background: #FDF0EE; border-color: #C0392B; }
+
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; animation: fadeUp 0.4s ease; }
+        .suggestion-chip {
+          padding: 7px 16px;
+          background: #FFFDF8; border: 1px solid #E0D8CC;
+          border-radius: 8px; font-size: 12px; font-weight: 500;
+          color: #7A6E62; cursor: pointer; transition: all 0.2s;
+          font-family: 'Outfit', sans-serif; letter-spacing: 0.01em;
+        }
+        .suggestion-chip:hover { border-color: #C8A84B; color: #9A7B3C; background: rgba(200,168,75,0.05); }
+
+        /* ── Input area ── */
+        .input-area {
+          padding: 18px 48px 24px;
+          background: rgba(247,244,238,0.95);
+          border-top: 1px solid rgba(0,0,0,0.07);
+          display: flex; gap: 10px; flex-shrink: 0; align-items: center;
+          backdrop-filter: blur(12px);
+        }
+        .chat-input {
+          flex: 1; padding: 13px 20px;
+          background: #FFFDF8;
+          border: 1px solid #E0D8CC;
+          border-radius: 10px; color: #1A1612;
+          font-size: 14px; outline: none;
+          font-family: 'Outfit', sans-serif;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .chat-input:focus { border-color: #C8A84B; box-shadow: 0 0 0 3px rgba(200,168,75,0.1); }
+        .chat-input::placeholder { color: #C8BBA8; }
+        .chat-input:disabled { opacity: 0.6; }
+
+        .send-btn {
+          padding: 13px 26px;
+          background: #1A1612; color: #F7F4EE;
+          border: none; border-radius: 10px;
+          font-size: 13px; font-weight: 600;
+          letter-spacing: 0.05em; text-transform: uppercase;
+          cursor: pointer; transition: all 0.2s;
+          font-family: 'Outfit', sans-serif; white-space: nowrap;
+        }
+        .send-btn:hover:not(:disabled) { background: #2D2520; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+        .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+        .clear-btn {
+          padding: 13px 16px;
+          background: transparent; border: 1px solid #DDD5C5;
+          border-radius: 10px; color: #B09A7A;
+          font-size: 12px; font-weight: 500;
+          cursor: pointer; transition: all 0.2s;
+          font-family: 'Outfit', sans-serif; white-space: nowrap;
+          letter-spacing: 0.04em;
+        }
+        .clear-btn:hover { border-color: #C0392B; color: #C0392B; background: rgba(192,57,43,0.04); }
+
+        /* ── Page header strip ── */
+        .chat-header {
+          padding: 28px 48px 0;
+          flex-shrink: 0;
+        }
+        .chat-eyebrow {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px; color: #B09A7A;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          margin-bottom: 6px;
+          display: flex; align-items: center; gap: 8px;
+        }
+        .chat-eyebrow::before {
+          content:''; display:inline-block;
+          width:18px; height:1px; background:#C8BBA8;
+        }
+        .chat-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 26px; font-weight: 700;
+          color: #1A1612; letter-spacing: -0.03em;
+          margin-bottom: 18px;
+        }
+        .chat-title em { font-style: italic; color: #9A7B3C; }
+        .chat-divider { height: 1px; background: rgba(0,0,0,0.07); margin-bottom: 0; }
       `}</style>
 
-      <div className="navbar">
-        <span className="nav-logo" onClick={() => navigate('/')}>MarketPulse</span>
+      {/* ── Navbar ── */}
+      <nav className={`nav${scrolled ? ' elevated' : ''}`}>
+        <div className="nav-brand" onClick={() => navigate('/')}>
+          <span className="nav-brand-name">MarketPulse</span>
+          <span className="nav-brand-tag">Terminal</span>
+        </div>
+
         <div className="nav-links">
           <span className="nav-link" onClick={() => navigate('/dashboard')}>Dashboard</span>
           <span className="nav-link active">AI Analyst</span>
           <span className="nav-link" onClick={() => navigate('/about')}>About</span>
-          <button className="logout-btn" onClick={() => { localStorage.removeItem('token'); navigate('/login') }}>Logout</button>
         </div>
+
+        <div className="nav-right">
+          <div className="live-badge">
+            <span className="live-dot" />
+            Live
+          </div>
+          <div className="nav-clock">
+            <strong>{now.toLocaleTimeString('en-US', { hour12: false })}</strong>
+            {now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </div>
+          <button className="btn-logout" onClick={() => { localStorage.removeItem('token'); navigate('/login') }}>
+            Sign out
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Page header ── */}
+      <div className="chat-header">
+        <div className="chat-eyebrow">AI Analyst</div>
+        <h1 className="chat-title">Ask anything about <em>the market.</em></h1>
+        <div className="chat-divider" />
       </div>
 
+      {/* ── Messages ── */}
       <div className="chat-area">
         {messages.map((m, i) => (
           m.role === 'user' ? (
@@ -271,11 +511,11 @@ function Chat() {
             </div>
           ) : (
             <div key={i} className="msg-ai">
-              <div className="ai-avatar">🤖</div>
+              <div className="ai-avatar">✦</div>
               <div>
                 <div className={`bubble ${m.error ? 'bubble-error' : 'bubble-ai'}`}>
                   {m.error
-                    ? <span style={{ color: '#F87171', fontSize: '13px' }}>⚠ {m.text}</span>
+                    ? <span style={{ fontSize: '13px', fontWeight: 500 }}>⚠ {m.text}</span>
                     : <FormattedMessage text={m.text} />
                   }
                   {m.error && (
@@ -295,13 +535,14 @@ function Chat() {
         ))}
         {loading && (
           <div className="msg-ai">
-            <div className="ai-avatar">🤖</div>
+            <div className="ai-avatar">✦</div>
             <div className="thinking-bubble"><ThinkingDots /></div>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
+      {/* ── Input ── */}
       <div className="input-area">
         <input
           className="chat-input"
@@ -313,7 +554,7 @@ function Chat() {
         />
         <button className="clear-btn" onClick={clearChat}>Clear</button>
         <button className="send-btn" onClick={() => sendMessage()} disabled={loading || !input.trim()}>
-          {loading ? 'Analyzing...' : 'Ask AI'}
+          {loading ? 'Analyzing…' : 'Ask AI'}
         </button>
       </div>
     </div>
