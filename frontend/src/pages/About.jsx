@@ -14,7 +14,8 @@ function Reveal({ children, delay = 0, from = 'bottom' }) {
     <div ref={ref} style={{
       opacity: on ? 1 : 0,
       transform: on ? 'none' : transforms[from],
-      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`
+      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+      height: '100%'
     }}>{children}</div>
   )
 }
@@ -52,12 +53,12 @@ const FEATURES = [
   {
     icon: '📈',
     title: 'Live Market Data',
-    desc: 'Real-time crypto and equity prices fetched from CoinGecko and Alpha Vantage, refreshed on every session with intelligent 2-minute caching.'
+    desc: 'Real-time crypto and equity prices fetched from CoinGecko and Yahoo Finance, refreshed on every session with intelligent 2-minute caching.'
   },
   {
     icon: '✦',
     title: 'AI Market Analyst',
-    desc: 'A LangChain-powered agent that reads live data from the database before answering — no hallucinated prices, just grounded intelligence.'
+    desc: 'A LangGraph-powered agent that reads live data from the database before answering — no hallucinated prices, just grounded intelligence.'
   },
   {
     icon: '🔐',
@@ -83,19 +84,19 @@ const FEATURES = [
 
 const STACK = [
   { label: 'FastAPI', note: 'Backend' },
-  { label: 'LangChain', note: 'AI Agent' },
+  { label: 'LangGraph', note: 'AI Agent' },
   { label: 'Groq + Llama', note: 'LLM' },
   { label: 'MongoDB', note: 'Database' },
   { label: 'React', note: 'Frontend' },
   { label: 'CoinGecko', note: 'Crypto API' },
-  { label: 'Alpha Vantage', note: 'Stock API' },
+  { label: 'Yahoo Finance', note: 'Stock API' },
   { label: 'JWT + bcrypt', note: 'Auth' },
   { label: 'Recharts', note: 'Charts' },
 ]
 
 const HOW = [
-  { step: '01', title: 'Data ingestion', desc: 'Live prices are pulled from CoinGecko and Alpha Vantage on every request and persisted to MongoDB for agent access.' },
-  { step: '02', title: 'Agent reasoning', desc: 'The LangChain agent fetches fresh database records, applies reasoning, and composes a grounded, accurate response.' },
+  { step: '01', title: 'Data ingestion', desc: 'Live prices are pulled from CoinGecko and Yahoo Finance on every request and persisted to MongoDB for agent access.' },
+  { step: '02', title: 'Agent reasoning', desc: 'The LangGraph agent fetches fresh database records, applies reasoning, and composes a grounded, accurate response.' },
   { step: '03', title: 'Delivery', desc: 'Answers stream back through FastAPI to the React client, rendered with structured markdown for clarity.' },
 ]
 
@@ -134,7 +135,6 @@ function About() {
         @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
         @keyframes scanFill { from{transform:translateX(-100%)} to{transform:translateX(300%)} }
 
-        /* ── Navbar ── */
         .nav {
           position: sticky; top: 0; z-index: 100;
           height: 62px;
@@ -201,7 +201,6 @@ function About() {
         }
         .btn-logout:hover { border-color: #1A1612; color: #1A1612; background: rgba(0,0,0,0.03); }
 
-        /* ── Hero ── */
         .hero {
           position: relative;
           padding: 80px 48px 72px;
@@ -260,76 +259,8 @@ function About() {
         }
         .btn-secondary:hover { border-color: #C8A84B; color: #9A7B3C; background: rgba(200,168,75,0.05); transform: translateY(-1px); }
 
-        /* ── Hero right: decorative card ── */
-        .hero-visual {
-          position: relative;
-        }
-        .hero-card {
-          background: #FFFDF8;
-          border: 1px solid #E8E0CF;
-          border-radius: 20px;
-          padding: 32px;
-          box-shadow: 0 8px 48px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
-          position: relative; overflow: hidden;
-        }
-        .hero-card::before {
-          content:''; position:absolute; top:0; left:0; right:0; height:3px;
-          background: linear-gradient(90deg, #C8A84B, #E8CC7A, #C8A84B);
-        }
-        .hero-card-label {
-          font-family: 'Geist Mono', monospace;
-          font-size: 9px; color: #B09A7A;
-          letter-spacing: 0.18em; text-transform: uppercase;
-          margin-bottom: 16px;
-          display: flex; align-items: center; gap: 8px;
-        }
-        .hero-card-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 22px; font-weight: 700;
-          color: #1A1612; letter-spacing: -0.02em;
-          margin-bottom: 6px;
-        }
-        .hero-card-sub { font-size: 13px; color: #9E9485; margin-bottom: 24px; }
+        .hero-visual { position: relative; }
 
-        .hero-stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-        .hero-stat {
-          background: #F7F4EE; border: 1px solid #EDE7DC;
-          border-radius: 12px; padding: 16px 14px;
-          text-align: center;
-        }
-        .hero-stat-val {
-          font-family: 'Geist Mono', monospace;
-          font-size: 24px; font-weight: 700;
-          color: #1A1612; line-height: 1; margin-bottom: 4px;
-        }
-        .hero-stat-val.gold { color: #9A7B3C; }
-        .hero-stat-val.green { color: #2D7D46; }
-        .hero-stat-lbl {
-          font-family: 'Geist Mono', monospace;
-          font-size: 9px; color: #C8BBA8;
-          letter-spacing: 0.12em; text-transform: uppercase;
-        }
-
-        .hero-bar { height: 3px; background: #F0EBE1; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
-        .hero-bar-fill {
-          height: 100%;
-          background: linear-gradient(90deg, transparent, #C8A84B, transparent);
-          animation: scanFill 2s ease infinite;
-        }
-        .hero-bar-label { font-family:'Geist Mono',monospace; font-size:9px; color:#D4CAB8; letter-spacing:0.1em; text-transform:uppercase; }
-
-        .hero-float-chip {
-          position: absolute; background: #FFFDF8;
-          border: 1px solid #E8E0CF; border-radius: 10px;
-          padding: 10px 14px;
-          display: flex; align-items: center; gap: 8px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-          font-size: 12px; color: #4A4138; font-weight: 500;
-          animation: floatY 4s ease infinite;
-        }
-        .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-        /* ── Stats strip ── */
         .stats-strip {
           background: #1A1612;
           padding: 44px 48px;
@@ -357,7 +288,6 @@ function About() {
           letter-spacing: 0.16em; text-transform: uppercase;
         }
 
-        /* ── Section shell ── */
         .section { padding: 80px 48px; max-width: 1400px; margin: 0 auto; }
         .sec-row { display: flex; align-items: center; gap: 14px; margin-bottom: 48px; }
         .sec-eyebrow {
@@ -368,11 +298,11 @@ function About() {
         }
         .sec-line { flex: 1; height: 1px; background: #E8E0CF; }
 
-        /* ── Feature cards ── */
         .features-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 16px;
+          align-items: stretch;
         }
         .fcard {
           background: #FFFDF8; border: 1px solid #E8E0CF;
@@ -380,6 +310,7 @@ function About() {
           position: relative; overflow: hidden;
           transition: transform 0.28s cubic-bezier(.23,1,.32,1), box-shadow 0.28s, border-color 0.28s;
           cursor: default;
+          display: flex; flex-direction: column; height: 100%;
         }
         .fcard::before {
           content:''; position:absolute; top:0; left:0; right:0; height:2px;
@@ -395,6 +326,7 @@ function About() {
           border: 1px solid rgba(200,168,75,0.2);
           display: flex; align-items: center; justify-content: center;
           font-size: 20px; margin-bottom: 18px;
+          flex-shrink: 0;
         }
         .fcard-title {
           font-family: 'Playfair Display', serif;
@@ -402,14 +334,14 @@ function About() {
           color: #1A1612; margin-bottom: 10px;
           letter-spacing: -0.02em;
         }
-        .fcard-desc { font-size: 13px; color: #7A6E62; line-height: 1.8; font-weight: 300; }
+        .fcard-desc { font-size: 13px; color: #7A6E62; line-height: 1.8; font-weight: 300; flex: 1; }
 
-        /* ── How it works ── */
-        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
         .how-card {
           background: #FFFDF8; border: 1px solid #E8E0CF;
           border-radius: 16px; padding: 32px 28px;
           position: relative; overflow: hidden;
+          display: flex; flex-direction: column; height: 100%;
         }
         .how-step-num {
           font-family: 'Playfair Display', serif;
@@ -422,9 +354,8 @@ function About() {
           font-size: 18px; font-weight: 700;
           color: #1A1612; margin-bottom: 10px; letter-spacing: -0.02em;
         }
-        .how-desc { font-size: 13px; color: #7A6E62; line-height: 1.8; font-weight: 300; }
+        .how-desc { font-size: 13px; color: #7A6E62; line-height: 1.8; font-weight: 300; flex: 1; }
 
-        /* ── Stack ── */
         .stack-section {
           background: #1A1612;
           padding: 64px 48px;
@@ -473,13 +404,10 @@ function About() {
           padding: 3px 8px; border-radius: 4px;
         }
 
-        /* ── Builder ── */
         .builder-section { padding: 80px 48px; max-width: 1400px; margin: 0 auto; }
         .builder-inner {
           display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
         }
-        .builder-left {}
-        .builder-right {}
         .builder-card-big {
           background: #FFFDF8; border: 1px solid #E8E0CF;
           border-radius: 20px; padding: 40px;
@@ -540,7 +468,6 @@ function About() {
         .builder-quote em { color: #9A7B3C; }
         .builder-quote-body { font-size: 14px; color: #7A6E62; line-height: 1.85; font-weight: 300; }
 
-        /* ── CTA ── */
         .cta-section {
           background: #1A1612; margin: 0;
           padding: 80px 48px;
@@ -590,7 +517,6 @@ function About() {
         }
         .cta-btn-secondary:hover { border-color: rgba(247,244,238,0.35); color: #F7F4EE; }
 
-        /* ── Footer ── */
         .footer {
           display: flex; justify-content: space-between; align-items: center;
           padding: 28px 48px;
@@ -601,7 +527,7 @@ function About() {
         .footer-txt { font-family:'Geist Mono',monospace; font-size:9px; color:#D4CAB8; letter-spacing:0.1em; text-align:center; }
       `}</style>
 
-      {/* ── Navbar ── */}
+      {/* Navbar */}
       <nav className={`nav${scrolled ? ' elevated' : ''}`}>
         <div className="nav-brand" onClick={() => navigate('/')}>
           <span className="nav-brand-name">MarketPulse</span>
@@ -627,40 +553,32 @@ function About() {
         </div>
       </nav>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
         <div className="hero">
           <Reveal delay={0}>
             <div>
               <div className="hero-eyebrow">About MarketPulse</div>
-              <div className="hero-container">
-  <h1 className="hero-title">
-    Intelligence meets<br />
-    <em>the market.</em>
-  </h1>
-
-  <p className="hero-desc">
-    MarketPulse is an AI platform that tracks crypto and stock markets in real time and explains insights in simple terms.
-  </p>
-</div>
+              <h1 className="hero-title">
+                Intelligence meets<br />
+                <em>the market.</em>
+              </h1>
+              <p className="hero-desc">
+                MarketPulse is an AI platform that tracks crypto and stock markets in real time and explains insights in simple terms.
+              </p>
               <div className="hero-btns">
                 <button className="btn-primary" onClick={() => navigate('/dashboard')}>Open Dashboard</button>
                 <button className="btn-secondary" onClick={() => navigate('/chat')}>Try AI Analyst</button>
               </div>
             </div>
           </Reveal>
-
           <Reveal delay={120} from="right">
-            <div className="hero-visual">
-              {/* Floating chips */}
-              
-              
-            </div>
+            <div className="hero-visual" />
           </Reveal>
         </div>
       </div>
 
-      {/* ── Stats strip ── */}
+      {/* Stats strip */}
       <Reveal delay={0}>
         <div className="stats-strip">
           {[
@@ -679,7 +597,7 @@ function About() {
         </div>
       </Reveal>
 
-      {/* ── Features ── */}
+      {/* Features */}
       <div className="section">
         <Reveal delay={0}>
           <div className="sec-row">
@@ -700,7 +618,7 @@ function About() {
         </div>
       </div>
 
-      {/* ── How it works ── */}
+      {/* How it works */}
       <div style={{ background: '#FFFDF8', borderTop: '1px solid #E8E0CF', borderBottom: '1px solid #E8E0CF', padding: '80px 0' }}>
         <div className="section" style={{ paddingTop: 0, paddingBottom: 0 }}>
           <Reveal delay={0}>
@@ -723,7 +641,7 @@ function About() {
         </div>
       </div>
 
-      {/* ── Stack ── */}
+      {/* Stack */}
       <Reveal delay={0}>
         <div className="stack-section">
           <div className="stack-inner">
@@ -743,7 +661,7 @@ function About() {
         </div>
       </Reveal>
 
-      {/* ── Builder ── */}
+      {/* Builder */}
       <div className="builder-section">
         <Reveal delay={0}>
           <div className="sec-row">
@@ -758,10 +676,10 @@ function About() {
               <div className="builder-name">Abiraminayagi</div>
               <div className="builder-role">2nd Year CS · AI Engineer</div>
               <p className="builder-desc">
-                Built MarketPulse as a full-stack AI project to explore what happens when real-time financial data meets large language models. Every layer — from the FastAPI backend to the LangChain agent to the React frontend — was designed and built solo.
+                Built MarketPulse as a full-stack AI project to explore what happens when real-time financial data meets large language models. Every layer — from the FastAPI backend to the LangGraph agent to the React frontend — was designed and built solo.
               </p>
               <div className="builder-tags">
-                {['Full-stack', 'AI / LLM', 'FastAPI', 'React', 'LangChain'].map((t, i) => (
+                {['Full-stack', 'AI / LLM', 'FastAPI', 'React', 'LangGraph'].map((t, i) => (
                   <span className="builder-tag" key={i}>{t}</span>
                 ))}
               </div>
@@ -782,7 +700,7 @@ function About() {
         </div>
       </div>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <Reveal delay={0}>
         <div className="cta-section">
           <div className="cta-eyebrow">Ready to explore</div>
@@ -795,7 +713,7 @@ function About() {
         </div>
       </Reveal>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <div className="footer">
         <span className="footer-brand">MarketPulse</span>
         <span className="footer-txt">For informational purposes only · Not financial advice</span>
