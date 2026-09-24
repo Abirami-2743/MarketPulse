@@ -6,7 +6,7 @@ from config import GROQ_API_KEY
 import re
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="openai/gpt-oss-120b",
     api_key=GROQ_API_KEY,
     temperature=0.3
 )
